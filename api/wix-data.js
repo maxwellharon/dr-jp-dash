@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     };
 
     const { method } = req;
-    const { collection, id, limit } = req.query;
+    const { collection, id } = req.query;
 
     if (!collection) {
         return res.status(400).json({ error: 'Missing collection parameter' });
@@ -31,21 +31,24 @@ export default async function handler(req, res) {
 
     try {
         // GET – query collection
+        // NOTE: intentionally no "query.paging" wrapper here. That was an
+        // unverified addition and the likely cause of the 400s — this is
+        // back to the plain body shape that was confirmed working (202
+        // patients loaded successfully with this exact shape).
         if (method === 'GET') {
-            const pageLimit = Math.min(parseInt(limit, 10) || 1000, 1000);
             const response = await fetch('https://www.wixapis.com/wix-data/v1/items/query', {
                 method: 'POST',
                 headers,
-                body: JSON.stringify({
-                    dataCollectionId: collection,
-                    query: { paging: { limit: pageLimit, offset: 0 } }
-                })
+                body: JSON.stringify({ dataCollectionId: collection })
             });
             const data = await response.json();
             if (!response.ok) {
                 console.error(`❌ Wix query failed for "${collection}" (${response.status}):`, JSON.stringify(data));
             }
-            return res.status(response.ok ? 200 : 400).json(data);
+            // Forward the REAL status code so the browser network tab
+            // shows the true cause (401/403/404/etc) instead of a
+            // hardcoded 400 that hides what actually happened.
+            return res.status(response.status).json(data);
         }
 
         // POST – single insert
@@ -63,7 +66,7 @@ export default async function handler(req, res) {
             if (!response.ok) {
                 console.error(`❌ Wix insert failed for "${collection}" (${response.status}):`, JSON.stringify(data));
             }
-            return res.status(response.ok ? 200 : 400).json(data);
+            return res.status(response.status).json(data);
         }
 
         // PUT – update a single item (requires id)
@@ -80,9 +83,8 @@ export default async function handler(req, res) {
             const data = await response.json();
             if (!response.ok) {
                 console.error(`❌ Wix update failed for "${collection}"/${id} (${response.status}):`, JSON.stringify(data));
-                return res.status(response.status).json(data);
             }
-            return res.status(200).json(data);
+            return res.status(response.status).json(data);
         }
 
         // DELETE
@@ -117,7 +119,7 @@ export default async function handler(req, res) {
             if (!response.ok) {
                 console.error(`❌ Wix bulk insert failed for "${collection}" (${response.status}):`, JSON.stringify(data));
             }
-            return res.status(response.ok ? 200 : 400).json(data);
+            return res.status(response.status).json(data);
         }
 
         else {

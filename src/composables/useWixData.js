@@ -22,8 +22,13 @@ async function fetchCollection(key) {
     const id = COLLECTIONS[key]
     try {
         const res = await fetch(`/api/wix-data?collection=${encodeURIComponent(id)}&limit=1000`)
-        if (!res.ok) return []
         const json = await res.json()
+        if (!res.ok) {
+            // Surface the real reason instead of silently returning [] —
+            // this was hiding the actual Wix error message.
+            console.error(`❌ Wix fetch failed for "${key}" (${res.status}):`, json)
+            return []
+        }
         return json.items || json.dataItems || []
     } catch (e) {
         console.error(`❌ Error fetching ${key}:`, e)
@@ -78,7 +83,7 @@ function mapPatient(item, proceduresList, rawInquiriesList) {
         pastSurgeries: item.pastSurgeries || 'No',
         calculatedPrice: Number(item.calculatedFinalCost || 0),
         createdDate: extractDate(item._createdDate || item.timestamp),
-        checkedOut           // <-- new
+        checkedOut
     }
 }
 
