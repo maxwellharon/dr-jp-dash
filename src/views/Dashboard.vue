@@ -525,9 +525,22 @@ const formatDate = (dateStr) => { /* unchanged */ }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 .filter-tag {
-  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem; /* tailwind gap-1.5 */
+  padding: 0.25rem 0.75rem; /* tailwind py-1 px-3 */
+  border-radius: 9999px; /* rounded-full */
+  font-size: 0.75rem; /* text-xs */
+  font-weight: 600; /* font-semibold */
+  background-color: #eef2ff; /* bg-indigo-50 */
+  color: #3730a3; /* text-indigo-700 */
+  border: 1px solid #c7d2fe; /* border-indigo-200 */
 }
-.filter-tag button { @apply text-indigo-400 hover:text-indigo-600 font-bold; }
+.filter-tag button {
+  color: #818cf8; /* text-indigo-400 */
+  font-weight: 700; /* font-bold */
+}
+.filter-tag button:hover { color: #4f46e5; /* hover:text-indigo-600 */ }
 .modal-enter-active, .modal-leave-active { transition: opacity 0.3s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; }
 .modal-enter-active > div, .modal-leave-active > div { transition: transform 0.3s ease; }
